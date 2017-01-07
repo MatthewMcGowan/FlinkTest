@@ -62,10 +62,18 @@ object Job {
      *
      * http://flink.apache.org/docs/latest/examples.html
      *
+     *
+     * execute program:
+     * env.execute("Flink Scala API Skeleton")
      */
 
+    val text = env.readTextFile("src/main/resources/source.txt")
 
-    // execute program
-    env.execute("Flink Scala API Skeleton")
+    val counts = text.flatMap { _.toLowerCase.split("\\W+") }
+      .map { (_, 1) }
+      .groupBy(0)
+      .sum(1)
+
+    counts.print()
   }
 }
