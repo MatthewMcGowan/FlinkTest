@@ -18,7 +18,11 @@ package uk.co.matthewmcgowan
  * limitations under the License.
  */
 
-import org.apache.flink.api.scala._
+import java.util.Properties
+
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer09
+import org.apache.flink.streaming.api.scala._
+import org.apache.flink.streaming.util.serialization.SimpleStringSchema
 
 /**
  * Skeleton for a Flink Job.
@@ -38,7 +42,7 @@ import org.apache.flink.api.scala._
 object Job {
   def main(args: Array[String]) {
     // set up the execution environment
-    val env = ExecutionEnvironment.getExecutionEnvironment
+    //val environment = ExecutionEnvironment.getExecutionEnvironment
 
     /**
      * Here, you can start creating your execution plan for Flink.
@@ -67,13 +71,24 @@ object Job {
      * env.execute("Flink Scala API Skeleton")
      */
 
-    val text = env.readTextFile("src/main/resources/source.txt")
+    //val text = environment readTextFile "src/main/resources/source.txt"
+    //val counts = text.flatMap { _.toLowerCase.split("\\W+") }
+    //  .map { (_, 1) }
+    //  .groupBy(0)
+    //  .sum(1)
+    //  .print()
 
-    val counts = text.flatMap { _.toLowerCase.split("\\W+") }
-      .map { (_, 1) }
-      .groupBy(0)
-      .sum(1)
+    val environment = StreamExecutionEnvironment.getExecutionEnvironment
 
-    counts.print()
+    val properties = new Properties();
+    properties.setProperty("bootstrap.servers", "localhost:9092");
+    properties.setProperty("group.id", "test");
+
+    val stream: DataStream[String] = environment
+      .addSource(new FlinkKafkaConsumer09[String]("test", new SimpleStringSchema(), properties))
+
+    stream writeAsText("src/main/resources/output")
+
+    environment.execute("test")
   }
 }
