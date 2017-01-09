@@ -87,7 +87,7 @@ object Job {
     val stream: DataStream[String] = environment
       .addSource(new FlinkKafkaConsumer09[String]("test", new SimpleStringSchema(), properties))
 
-    stream writeAsText("src/main/resources/output")
+    stream print //writeAsText("src/main/resources/output")
 
     environment.execute("test")
   }
